@@ -1,42 +1,24 @@
 // Require the framework and instantiate it
+const { ApolloServer, gql } = require('apollo-server-fastify');
 const fastify = require('fastify')({ logger: true });
-const { isConnected, NotesCollection, Notes } = require('./db');
+const { isConnected } = require('./db');
+const graphqlSchema = require('./graphql');
 
 // Declare a route
 fastify.get('/', async (request, reply) => {
   return { hello: 'world' };
 });
 
-fastify.post('/collections', async (request, reply) => {
-  const { name } = request.body;
-  const newCollection = new NotesCollection({ name });
-  await newCollection.save();
-
-  return newCollection.toObject();
-});
-fastify.get('/collections', async (request, reply) => {
-  const collections = NotesCollection.find().lean();
-  return collections;
-});
-
-fastify.post('/collections/:id/notes', async (request, reply) => {
-  const { id } = request.params;
-  const { name, body } = request.body;
-  const newNote = new Notes({ name, body, group: id });
-  await newNote.save();
-  return newNote.toObject();
-});
-fastify.get('/collections/:id/notes', async (request, reply) => {
-  const { id } = request.params;
-  const notes = Notes.find({ group: id }).lean();
-  return notes;
-});
-
 // Run the server!
 const start = async () => {
   try {
+    // create graphql server
+    const gqlServer = new ApolloServer({
+      schema: graphqlSchema
+    });
+
     await isConnected;
-    await fastify.listen(3000);
+    await fastify.register(gqlServer.createHandler()).listen(3000);
     fastify.log.info(`server listening on ${fastify.server.address().port}`);
   } catch (err) {
     fastify.log.error(err);

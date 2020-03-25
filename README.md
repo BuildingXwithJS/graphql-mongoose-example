@@ -2,7 +2,7 @@
 
 > Free open-source tutorial on creating a simple GraphQL API using mongoose and graphql-compose
 
-This repository contains code and related materials for [GraphQL in 2020]() video.
+This repository contains code and related materials for [GraphQL in 2020](https://youtu.be/j1hlu6zrbaA) video.
 
 ## Project description
 
